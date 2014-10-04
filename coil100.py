@@ -8,6 +8,8 @@ import coil100aux
 
 
 COIL100_PATH = './coil-100/*.png'
+COIL100_BINS = 32
+
 # configure "logging" module when and how to display log messages
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -23,36 +25,9 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
 
     orig_imgs = coil100aux.load_orig_imgs(COIL100_PATH)
-    """
-    e.g:
-    orig_imgs = {
-        'obj1': {
-            '0': <numpy array representing obj1__0.png>,
-            '10': <numpy array representing obj1__10.png>,
-            [etc.]
-        },
-        [etc.]
-    }
-    """
-
-    codebook_coordinates = coil100aux.build_codebook(orig_imgs)
-    """
-    e.g:
-    codebook_coordinates = [nd.array([0, 0, 0]), nd.array([10, 20, 30]), ...]
-    """
-
-    feature_vectors = coil100aux.coding_and_pooling(orig_imgs, codebook_coordinates)
-    """
-    e.g:
-    feature_vectors = {
-        'obj1': {
-            '0': <feature vector>,
-            '10': <feature vector>,
-            [etc.]
-        },
-        [etc.]
-    }
-    """
+    orig_histograms = coil100aux.load_histograms(orig_imgs, COIL100_BINS)
+    codebook_coordinates = coil100aux.build_codebook(orig_imgs, orig_histograms, 50, 'random')
+    feature_vectors = coil100aux.coding_and_pooling(orig_imgs, orig_histograms, codebook_coordinates)
 
     trained_model = coil100aux.train(feature_vectors)
     # depends on training step
