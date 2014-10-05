@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import os
 import re
+from sklearn.cluster import KMeans
 
 
 # globally used variables
@@ -102,26 +103,27 @@ def build_codebook(coordinates_num=50, strategy='random'):
     if coordinates_num > histograms_matrix.shape[0]:
         raise ValueError('Codebook: unable to retrieve %s coordinates from %s images' % (coordinates_num, histograms_aux.shape[0]))
 
+    bins = histograms_matrix.shape[1] / 3
+    weights = np.arange(start=256/(2*bins), stop=255, step=256/bins)
+    # e.g (assuming bins = 8):
+    # weights = [ 15  46  77 108 139 170 201 232]
+    weights = np.concatenate((weights, weights, weights)) # 3 channels concatenated
+
     if strategy == 'random':
         random_rows_indexes = np.random.randint(histograms_matrix.shape[0], size=coordinates_num)
         random_histograms = histograms_matrix[random_rows_indexes,:]
         codebook = []
-        bins = histograms_matrix.shape[1] / 3
-        weights = np.arange(start=256/(2*bins), stop=255, step=256/bins)
-        # e.g (assuming bins = 8):
-        # weights = [ 15  46  77 108 139 170 201 232]
-        weights = np.concatenate((weights, weights, weights)) # 3 channels concatenated
         for hist in random_histograms:
-            hist_w = hist * weights
-            codebook.append([
-                np.sum(hist_w[:bins], dtype=int), # channel 1
-                np.sum(hist_w[bins:2*bins], dtype=int), # channel 2
-                np.sum(hist_w[2*bins:], dtype=int), # channel 3
-            ])
+            codebook.append(np.sum((hist * weights).reshape((3, bins)), axis=1, dtype=int))
         codebook = np.asarray(codebook)
+
     elif strategy == 'kmeans':
-        # TODO
-        raise NotImplementedError('K-means Codebook')
+        estimator = KMeans(init='k-means++', n_clusters=coordinates_num)
+        estimator = estimator.fit(histograms_matrix)
+        codebook = []
+        for hist in estimator.cluster_centers_:
+            codebook.append(np.sum((hist * weights).reshape((3, bins)), axis=1, dtype=int))
+        codebook = np.asarray(codebook)
     else:
         raise ValueError('Invalid codebook strategy: %s' % (strategy))
     return
