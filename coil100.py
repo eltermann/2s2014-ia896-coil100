@@ -24,9 +24,9 @@ def signal_handler(signal, frame):
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
 
-    orig_imgs = coil100aux.load_orig_imgs(COIL100_PATH)
-    orig_histograms = coil100aux.load_histograms(orig_imgs, COIL100_BINS)
-    codebook_coordinates = coil100aux.build_codebook(orig_imgs, orig_histograms, 50, 'random')
+    coil100aux.load_imgs(COIL100_PATH) # read images into coil100aux.imgs
+    coil100aux.calc_histograms(COIL100_BINS) # append histograms
+    coil100aux.build_codebook(50, 'random') # build codebook into coil100aux.codebook
     feature_vectors = coil100aux.coding_and_pooling(orig_imgs, orig_histograms, codebook_coordinates)
 
     trained_model = coil100aux.train(feature_vectors)
