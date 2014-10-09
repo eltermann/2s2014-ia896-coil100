@@ -5,11 +5,12 @@ import signal
 import sys
 
 import coil100aux
+import coil100vars
 
 
 COIL100_PATH = './coil-100/*.png'
 COIL100_BINS = 32
-COIL100_CODEBOOK_SIZE = 50
+COIL100_CODEBOOK_SIZE = 200
 
 # configure "logging" module when and how to display log messages
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -27,8 +28,9 @@ if __name__ == '__main__':
 
     coil100aux.load_imgs(COIL100_PATH) # read images into coil100aux.imgs
     coil100aux.calc_histograms(COIL100_BINS) # append histograms
-    coil100aux.build_codebook(COIL100_CODEBOOK_SIZE, 'kmeans') # build codebook into coil100aux.codebook
+    coil100aux.build_codebooks(COIL100_CODEBOOK_SIZE, 'random')
     coil100aux.coding_and_pooling()
+    coil100aux.build_feature_vectors()
 
     trained_model = coil100aux.train(feature_vectors)
     # depends on training step
