@@ -91,7 +91,7 @@ def build_codebooks(coordinates_num=50, strategy='random'):
     logging.info('Building codebook; strategy="%s"' % (strategy))
 
     if coordinates_num > coil100vars.histograms_matrix.shape[0]:
-        raise ValueError('Codebook: unable to retrieve %s coordinates from %s images' % (coordinates_num, histograms_aux.shape[0]))
+        raise ValueError('Codebook: unable to retrieve %s coordinates from %s images' % (coordinates_num, len(coil100vars.imgs)))
 
     if strategy == 'random':
         random_rows_indexes = np.random.choice(len(coil100vars.imgs), size=coordinates_num, replace=False)
