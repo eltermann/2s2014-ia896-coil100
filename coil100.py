@@ -11,6 +11,7 @@ import coil100vars
 COIL100_PATH = './coil-100/*.png'
 COIL100_BINS = 32
 COIL100_CODEBOOK_SIZE = 200
+rank_size = 20
 
 # configure "logging" module when and how to display log messages
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -30,15 +31,15 @@ if __name__ == '__main__':
     coil100aux.calc_histograms(COIL100_BINS) # append histograms
     coil100aux.build_codebooks(COIL100_CODEBOOK_SIZE, 'random')
     coil100aux.coding_and_pooling()
-    coil100aux.build_feature_vectors()
-
-    trained_model = coil100aux.train(feature_vectors)
-    # depends on training step
+    ##acho que elaborar as features vector jah estah dentro de coding_and_pooling, 
+    #MAAASSSS deveria estar em metodo separado para podermos aproveitar em query_feature_vector
+    #coil100aux.build_feature_vectors()
 
     while True:
         query_file = raw_input('\nFile name to query (e.g: ./coil-100/obj99__90.png): ')
         query_feature_vector = None # TODO - use aux methods from coil100aux
-        results = coil100aux.execute_query(trained_model, query_feature_vector)
+        proximity_by = raw_input('\nChoose the proximity function (e.g: "ed" for Euclidean distance or "md" forManhattan distance): ')
+        results = coil100aux.search_query(feature_vectors, query_feature_vector, proximity_by,rank_size)
         # e.g: ['obj1__0', 'obj1__10', ...]
 
         query_objid, query_imgid = coil100aux.get_objid_and_imgid(query_file)

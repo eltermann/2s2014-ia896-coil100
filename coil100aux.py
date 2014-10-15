@@ -154,12 +154,17 @@ def coding_and_pooling():
 
     return
 
+def search_query(feature_vectors, query_feature_vector, proximity_by, rank_size):
 
-def train(feature_vectors):
-    # TODO
-    return None
-
-
-def execute_query(trained_model, query_feature_vector):
+    if proximity_by == 'ed':
+        for fv in feature_vectors:
+            coil100vars.proximity_vector[fv][0] = feature_vectors[fv[0]] #suponho que em 0 tenha onome da imagem
+            coil100vars.proximity_vector[fv][1] += (feature_vectors[fv[1,]] - query_feature_vector)^2
+        #ordenar o vetor com base na distancia    
+        coil100vars.proximity_vector[][1].sort()
+        if len(coil100vars.proximity_vector)< rank_size:
+            rank_size = len(coil100vars.proximity_vector)
+    
+    
     # TODO
     return []# ['obj1__0', 'obj1__10', ...]
