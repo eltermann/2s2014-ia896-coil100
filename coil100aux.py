@@ -6,6 +6,7 @@ import os
 import re
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.metrics.pairwise import manhattan_distances
 
 import coil100vars
 
@@ -154,17 +155,48 @@ def coding_and_pooling():
 
     return
 
-def search_query(feature_vectors, query_feature_vector, proximity_by, rank_size):
+def search_query(images, query, proximity_by, rank_size,coding_kind):
 
-    if proximity_by == 'ed':
-        for fv in feature_vectors:
-            coil100vars.proximity_vector[fv][0] = feature_vectors[fv[0]] #suponho que em 0 tenha onome da imagem
-            coil100vars.proximity_vector[fv][1] += (feature_vectors[fv[1,]] - query_feature_vector)^2
-        #ordenar o vetor com base na distancia    
-        coil100vars.proximity_vector[][1].sort()
-        if len(coil100vars.proximity_vector)< rank_size:
-            rank_size = len(coil100vars.proximity_vector)
+#images=coil100vars.imgs
+#query=coil100vars.imgs[7]
+#proximity_by='ed'
+#coil100vars.rank_size
+#coding_kind=1
+#img = coil100vars.imgs[7]
+
+
+    print('The search has began')
+    if coding_kind == 1:  
+        t='feature_vector_hist_hard'
+    elif coding_kind == 2:    
+        t = 'feature_vector_pixels_hard'
+    elif coding_kind == 3:    
+        t = 'rgb'
+    else:    
+        t='rgb_hist'
     
+    distances = None
+    if proximity_by == 'ed':
+        for img in images:
+            distances=np.append(distances,euclidean_distances(img[t],query[t]))
+               
+    if proximity_by == 'md':
+        for img in images:
+            distances=np.append(distances,manhattan_distances(img[t],query[t],sum_over_features=False))
+
+    distances = np.array(np.delete(distances,0))
+    print('We have the distances')
+    print(distances)
+    i=0
+    proximity_vector = None
+    while i<rank_size:
+            a = np.nanargmin(distances)
+            proximity_vector = np.append(proximity_vector,a)
+            distances[a] = np.nan
+            i +=1
+    
+    coil100vars.proximity_vector = np.delete(coil100vars.proximity_vector,0)
+    print(coil100vars.proximity_vector)
     
     # TODO
-    return []# ['obj1__0', 'obj1__10', ...]
+    return [coil100vars.proximity_vector]# ['obj1__0', 'obj1__10', ...]
