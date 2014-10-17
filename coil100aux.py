@@ -184,19 +184,18 @@ def search_query(images, query, proximity_by, rank_size,coding_kind):
         for img in images:
             distances=np.append(distances,manhattan_distances(img[t],query[t],sum_over_features=False))
 
-    distances = np.array(np.delete(distances,0))
+    distances = np.array(np.delete(distances,0),dtype=np.int)
     print('We have the distances')
     print(distances)
-    i=0
     proximity_vector = None
-    while i<rank_size:
-            a = np.nanargmin(distances)
-            proximity_vector = np.append(proximity_vector,a)
-            distances[a] = np.nan
-            i +=1
+    for i in range(rank_size):
+        a = np.nanargmin(distances)
+        proximity_vector = np.append(proximity_vector,np.int(a))
+        distances[a] = np.nan
+
     
-    coil100vars.proximity_vector = np.delete(coil100vars.proximity_vector,0)
-    print(coil100vars.proximity_vector)
+    proximity_vector = np.array(np.delete(proximity_vector,0),dtype=np.int)
+    print(proximity_vector)
     
     # TODO
-    return [coil100vars.proximity_vector]# ['obj1__0', 'obj1__10', ...]
+    return [proximity_vector]# ['obj1__0', 'obj1__10', ...]

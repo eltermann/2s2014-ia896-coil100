@@ -43,7 +43,7 @@ if __name__ == '__main__':
         proximity_by = raw_input('\nChoose the proximity function (Use "ed" for Euclidean distance or "md" for Manhattan distance): ')
        
        #results = vetor com os indices das imagens mais parecidas de acordo com a funcao de distancia e codebook escolhidos       
-        results = coil100aux.search_query(coil100vars.imgs, coil100vars.imgs[7], proximity_by,coil100vars.rank_size,coding_kind)
+        results = coil100aux.search_query(coil100vars.imgs, coil100vars.imgs[545], proximity_by,coil100vars.rank_size,coding_kind)
         # e.g: ['obj1__0', 'obj1__10', ...]
 
 #        query_objid, query_imgid = coil100aux.get_objid_and_imgid(query_file)
