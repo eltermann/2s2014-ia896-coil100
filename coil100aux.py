@@ -1,3 +1,4 @@
+import base64
 import cv2
 import logging
 import glob
@@ -35,10 +36,13 @@ def load_imgs(files_pattern):
     coil100vars.imgs = []
     for file_path in glob.glob(files_pattern):
         objid, imgid = get_objid_and_imgid(file_path)
+        img = cv2.imread(file_path)
+        _, data = cv2.imencode('.png', img)
         coil100vars.imgs.append({
             'objid': objid,
             'imgid': imgid,
-            'rgb': cv2.imread(file_path),
+            'rgb': img,
+            'base64': base64.b64encode(data.tostring()),
         })
     return
 
@@ -166,20 +170,20 @@ def search_query(images, query, proximity_by, rank_size,coding_kind):
 
 
     print('The search has began')
-    if coding_kind == 1:  
+    if coding_kind == 1:
         t='feature_vector_hist_hard'
-    elif coding_kind == 2:    
+    elif coding_kind == 2:
         t = 'feature_vector_pixels_hard'
-    elif coding_kind == 3:    
+    elif coding_kind == 3:
         t = 'rgb'
-    else:    
+    else:
         t='rgb_hist'
-    
+
     distances = None
     if proximity_by == 'ed':
         for img in images:
             distances=np.append(distances,euclidean_distances(img[t],query[t]))
-               
+
     if proximity_by == 'md':
         for img in images:
             distances=np.append(distances,manhattan_distances(img[t],query[t],sum_over_features=False))
@@ -194,9 +198,40 @@ def search_query(images, query, proximity_by, rank_size,coding_kind):
             proximity_vector = np.append(proximity_vector,a)
             distances[a] = np.nan
             i +=1
-    
+
     coil100vars.proximity_vector = np.delete(coil100vars.proximity_vector,0)
     print(coil100vars.proximity_vector)
-    
+
     # TODO
     return [coil100vars.proximity_vector]# ['obj1__0', 'obj1__10', ...]
+
+
+def render_img(img_index, title=''):
+    s = '<div style="text-align:center;">'
+    if title:
+        s += '<h4>%s</h4>' % (title)
+    s += '<img src="data:image/png;base64,' + coil100vars.imgs[img_index]['base64'] + '" />'
+    caption = '%s: %s' % (coil100vars.imgs[img_index]['objid'], coil100vars.imgs[img_index]['imgid'])
+    s += '<span style="display:block;">' + caption + '</span></div>'
+    return s
+
+
+def print_all(query_img_index, results_imgs_indexes):
+    from IPython.display import HTML, display
+
+    s = render_img(query_img_index, 'Query image')
+    s += '<hr/><h4>Results:</h4>'
+    s += '<table><tr>'
+    rank = 1
+    hits = 0
+    for i in results_imgs_indexes:
+        s += '<td>' + render_img(i, '(%s)' % (rank)) + '</td>'
+        if rank % 7 == 0:
+            s += '</tr>'
+        rank += 1
+        if coil100vars.imgs[i]['objid'] == coil100vars.imgs[query_img_index]['objid']:
+            hits += 1
+    s += '</tr></table>'
+    s += '<h4>Hits: %s/%s</h4>' % (hits, len(results_imgs_indexes))
+    h = HTML(s)
+    display(h)
