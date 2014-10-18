@@ -1,3 +1,4 @@
+import base64
 import cv2
 import logging
 import glob
@@ -40,10 +41,13 @@ def load_imgs(files_pattern):
     coil100vars.imgs = []
     for file_path in glob.glob(files_pattern):
         objid, imgid = get_objid_and_imgid(file_path)
+        img = cv2.imread(file_path)
+        _, data = cv2.imencode('.png', img)
         coil100vars.imgs.append({
             'objid': objid,
             'imgid': imgid,
-            'rgb': cv2.imread(file_path),
+            'rgb': img,
+            'base64': base64.b64encode(data.tostring()),
         })
     return
 
@@ -161,7 +165,7 @@ def coding_and_pooling():
     return
 
 def search_query(images, query, proximity_by, rank_size,coding_kind):
-
+    
     #print('The search has began')
     if coding_kind == 1:  
         #frequencia de cd cor na imagem, agrupado em 32 cluster para cd cor, 96 no total
@@ -189,9 +193,37 @@ def search_query(images, query, proximity_by, rank_size,coding_kind):
         proximity_vector = np.append(proximity_vector,np.int(a))
         distances[a] = np.nan
 
-    
     proximity_vector = np.array(np.delete(proximity_vector,0),dtype=np.int)
-    print(proximity_vector)
+    #print(proximity_vector)
     
-    # TODO
     return [proximity_vector]# ['obj1__0', 'obj1__10', ...]
+
+def render_img(img_index, title=''):
+    s = '<div style="text-align:center;">'
+    if title:
+        s += '<h4>%s</h4>' % (title)
+    s += '<img src="data:image/png;base64,' + coil100vars.imgs[img_index]['base64'] + '" />'
+    caption = '%s: %s' % (coil100vars.imgs[img_index]['objid'], coil100vars.imgs[img_index]['imgid'])
+    s += '<span style="display:block;">' + caption + '</span></div>'
+    return s
+
+
+def print_all(query_img_index, results_imgs_indexes):
+    from IPython.display import HTML, display
+
+    s = render_img(query_img_index, 'Query image')
+    s += '<hr/><h4>Results:</h4>'
+    s += '<table><tr>'
+    rank = 1
+    hits = 0
+    for i in results_imgs_indexes:
+        s += '<td>' + render_img(i, '(%s)' % (rank)) + '</td>'
+        if rank % 7 == 0:
+            s += '</tr>'
+        rank += 1
+        if coil100vars.imgs[i]['objid'] == coil100vars.imgs[query_img_index]['objid']:
+            hits += 1
+    s += '</tr></table>'
+    s += '<h4>Hits: %s/%s</h4>' % (hits, len(results_imgs_indexes))
+    h = HTML(s)
+    display(h)

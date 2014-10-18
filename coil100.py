@@ -49,8 +49,10 @@ if __name__ == '__main__':
        
         #results = vetor com os indices das imagens mais parecidas de acordo com a funcao de distancia e codebook escolhidos       
         results = coil100aux.search_query(coil100vars.imgs, coil100vars.imgs[query], proximity_by,coil100vars.rank_size,coding_kind)
-        # e.g: ['obj1__0', 'obj1__10', ...]
-
+        # e.g: [45,87, ...]
+        
+        coil100aux.print_all(query,results)
+        
 #        query_objid, query_imgid = coil100aux.get_objid_and_imgid(query_file)
 #        target = '%s__' % (query_objid) # e.g: "obj1__"
 #        hits = 0
