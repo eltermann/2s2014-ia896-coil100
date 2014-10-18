@@ -4,11 +4,16 @@ import glob
 import numpy as np
 import os
 import re
+import sys
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.metrics.pairwise import manhattan_distances
 
 import coil100vars
+
+
+def get_num(x):
+    return int(''.join(ele for ele in x if ele.isdigit()))
 
 
 def get_objid_and_imgid(file_path):
@@ -157,36 +162,27 @@ def coding_and_pooling():
 
 def search_query(images, query, proximity_by, rank_size,coding_kind):
 
-#images=coil100vars.imgs
-#query=coil100vars.imgs[7]
-#proximity_by='ed'
-#coil100vars.rank_size
-#coding_kind=1
-#img = coil100vars.imgs[7]
-
-
-    print('The search has began')
+    #print('The search has began')
     if coding_kind == 1:  
-        t='feature_vector_hist_hard'
+        #frequencia de cd cor na imagem, agrupado em 32 cluster para cd cor, 96 no total
+        t='rgb_hist' 
     elif coding_kind == 2:    
+        #descrevo a imagem com base na cor dos pixels sorteados e das cores no codebook
         t = 'feature_vector_pixels_hard'
-    elif coding_kind == 3:    
-        t = 'rgb'
     else:    
-        t='rgb_hist'
+        t='feature_vector_hist_hard'
     
     distances = None
     if proximity_by == 'ed':
         for img in images:
-            distances=np.append(distances,euclidean_distances(img[t],query[t]))
-               
-    if proximity_by == 'md':
+            distances=np.append(distances,euclidean_distances(img[t],query[t]))            
+    elif proximity_by == 'md':
         for img in images:
             distances=np.append(distances,manhattan_distances(img[t],query[t],sum_over_features=False))
 
-    distances = np.array(np.delete(distances,0),dtype=np.int)
-    print('We have the distances')
-    print(distances)
+    distances = np.array(np.delete(distances,0),dtype=np.float)
+    #print('We have the distances')
+    #print(distances)
     proximity_vector = None
     for i in range(rank_size):
         a = np.nanargmin(distances)

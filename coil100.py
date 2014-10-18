@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 import sys
+import re
 
 import coil100aux
 import coil100vars
@@ -31,19 +32,23 @@ if __name__ == '__main__':
     coil100aux.calc_histograms(COIL100_BINS) # append histograms
     coil100aux.build_codebooks(COIL100_CODEBOOK_SIZE, 'random')
     coil100aux.coding_and_pooling()
-    ##acho que elaborar as features vector jah estah dentro de coding_and_pooling, 
-    #MAAASSSS deveria estar em metodo separado para podermos aproveitar em query_feature_vector
-    #coil100aux.build_feature_vectors()
 
     while True:
         query_file = raw_input('\nFile name to query (e.g: ./coil-100/obj99__90.png): ')
-        #query de teste: obj1__35.png
-                
-        coding_kind = int(raw_input('\nChoose the codebook you want to use (Use 1 for hist, 2 for pixels, 3 for rgb, and 4 for rgb_hist codewords): '))
+        #query de teste: obj1__20.png
+        
+        #recupera o indice corresponde a query
+        query_objid, query_imgid = coil100aux.get_objid_and_imgid(query_file)        
+        query_objid = coil100aux.get_num(query_objid)
+        query = (query_objid-1)*72 + ((int(query_imgid))/5)
+
+        #query = 4
+        #nao usar 3 com ed        
+        coding_kind = int(raw_input('\nChoose the codebook you want to use:\n 1: RGB histogram. Its the frequence in what each of the 32 cluster occurs, 32 for color,\n 2: Codewords are colors. They are applied on a simple of pixels, using sum as pooling,\n 3: feature_vector_hist_hard codewords.\n'))
         proximity_by = raw_input('\nChoose the proximity function (Use "ed" for Euclidean distance or "md" for Manhattan distance): ')
        
-       #results = vetor com os indices das imagens mais parecidas de acordo com a funcao de distancia e codebook escolhidos       
-        results = coil100aux.search_query(coil100vars.imgs, coil100vars.imgs[545], proximity_by,coil100vars.rank_size,coding_kind)
+        #results = vetor com os indices das imagens mais parecidas de acordo com a funcao de distancia e codebook escolhidos       
+        results = coil100aux.search_query(coil100vars.imgs, coil100vars.imgs[query], proximity_by,coil100vars.rank_size,coding_kind)
         # e.g: ['obj1__0', 'obj1__10', ...]
 
 #        query_objid, query_imgid = coil100aux.get_objid_and_imgid(query_file)
