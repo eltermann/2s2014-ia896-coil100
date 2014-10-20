@@ -227,3 +227,17 @@ def print_all(query_img_index, results_imgs_indexes):
     s += '<h4>Hits: %s/%s</h4>' % (hits, len(results_imgs_indexes))
     h = HTML(s)
     display(h)
+    
+def print_results(query, results,rank_size):
+    print ('Query = ')
+    print(query/72 + 1)
+    
+    print ('\nResults = ')
+    #results = np.array(results)
+    for i in range(rank_size):
+        result = results[0][i]
+        result = result/72 + 1
+        print(result)  
+    
+    print('\n')
+        

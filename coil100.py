@@ -51,7 +51,10 @@ if __name__ == '__main__':
         results = coil100aux.search_query(coil100vars.imgs, coil100vars.imgs[query], proximity_by,coil100vars.rank_size,coding_kind)
         # e.g: [45,87, ...]
         
-        coil100aux.print_all(query,results)
+        #coil100aux.print_all(query,results)
+        #query = 105
+        #results = [88,7000,645,827,1,766]
+        coil100aux.print_results(query, results,coil100vars.rank_size)
         
 #        query_objid, query_imgid = coil100aux.get_objid_and_imgid(query_file)
 #        target = '%s__' % (query_objid) # e.g: "obj1__"
