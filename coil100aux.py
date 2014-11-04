@@ -163,6 +163,25 @@ def coding_and_pooling():
             logging.info('Processed: %s/%s' % (count, len(coil100vars.imgs)))
 
     return
+    
+def cod_pol_with_sift():
+    """
+    Strategies:
+    Faz o coding usando sift.
+    Fazer o pooling dos descritores
+    Criar estrutura para armazenar os poolings das imagens
+    Usar search_query para rotular a query ==>> mexer um pouco nesta função
+    """
+    for img in coil100vars.imgs:    
+        gray= cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        #calcula os keypoints e os descriptors
+        kp,des = cv2.SIFT.detectAndCompute(gray)
+        #para testes ==>> desenha os kypoints na imagem        
+        img=cv2.drawKeypoints(gray,kp)
+        #PARA TESTE ==>> imprimea imagem com os pontos        
+        cv2.imwrite('sift_keypoints.jpg',gray)
+    
+    return
 
 def search_query(images, query, proximity_by, rank_size,coding_kind):
     
@@ -230,14 +249,14 @@ def print_all(query_img_index, results_imgs_indexes):
     
 def print_results(query, results,rank_size):
     print ('Query = ')
-    print(query/72 + 1)
+    print(query/72 + 1, (query%72)*5)
     
     print ('\nResults = ')
     #results = np.array(results)
     for i in range(rank_size):
-        result = results[0][i]
-        result = result/72 + 1
-        print(result)  
+        result1 = results[0][i]
+        result = result1/72 + 1
+        print(result, (result1%72)*5)  
     
     print('\n')
         

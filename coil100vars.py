@@ -4,4 +4,4 @@ codebook_colors = None
 codebook_histograms = None
 histograms_matrix = None
 feature_vectors = None
-rank_size = 5
+rank_size = 20
